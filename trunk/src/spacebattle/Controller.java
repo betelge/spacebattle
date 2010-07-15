@@ -237,17 +237,6 @@ public class Controller extends Lw3dController {
 		cubes[0].getTransform().getPosition().multThis(0f);
 		// cameraNode.getTransform().getPosition().z = -1f;
 
-		// Create render passes
-		synchronized (model.getRenderPasses()) {
-			model.getRenderPasses().add(
-					new SceneRenderPass(rootNode, cameraNode, myFBO));
-			//model.getRenderPasses().add(new QuadRenderPass(fboMaterial));
-			model.getRenderPasses().add(
-					new BloomPass(fboMaterial.getTextures().get("source"),
-							model.getDrawWidth()/4, model.getDrawHeight()/4));
-			
-		}
-
 		PhysicalGeometryNode cube = new PhysicalGeometryNode(cubeMesh,
 				defaultMaterial);
 		cube.setMass(1);
@@ -274,6 +263,17 @@ public class Controller extends Lw3dController {
 		//cube.getMovement().getPosition().x = -0.01f;
 		cube.getMovement().getRotation().fromAngleNormalAxis(0.03f,
 				Vector3f.UNIT_Z);
+		
+		// Create render passes
+		synchronized (model.getRenderPasses()) {
+			model.getRenderPasses().add(
+					new SceneRenderPass(rootNode, cameraNode, myFBO));
+			//model.getRenderPasses().add(new QuadRenderPass(fboMaterial));
+			model.getRenderPasses().add(
+					new BloomPass(fboMaterial.getTextures().get("source"),
+							model.getDrawWidth()/4, model.getDrawHeight()/4));
+			
+		}
 	}
 
 }
