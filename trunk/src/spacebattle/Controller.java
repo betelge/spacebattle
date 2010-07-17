@@ -8,6 +8,7 @@ import java.util.Set;
 
 import nodes.PhysicalGeometryNode;
 import nodes.PhysicalNode;
+import nodes.Ship;
 
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
@@ -103,29 +104,32 @@ public class Controller extends Lw3dController {
 			if (!repeatEvent) {
 				Vector3f vector = new Vector3f();
 				float speed = 0.15f;
+				
+				float mainEngineValue = 0f;
 
 				Iterator<Integer> it = model.getKeys().iterator();
 				while (it.hasNext()) {
 					switch (it.next()) {
 					case Keyboard.KEY_UP:
-					case Keyboard.KEY_W:
 						vector.addThis(0f, 0f, -1f);
 						break;
 					case Keyboard.KEY_RIGHT:
-					case Keyboard.KEY_D:
 						vector.addThis(1f, 0f, 0f);
 						break;
 					case Keyboard.KEY_DOWN:
-					case Keyboard.KEY_S:
 						vector.addThis(0f, 0f, 1f);
 						break;
 					case Keyboard.KEY_LEFT:
-					case Keyboard.KEY_A:
 						vector.addThis(-1f, 0f, 0f);
+						break;
+					case Keyboard.KEY_A:
+						mainEngineValue = 1f;
 						break;
 					default:
 					}
 				}
+				
+				model.getOwnShip().setMainEngineValue(mainEngineValue);
 
 				vector.normalizeThis();
 				vector.multThis(speed);
@@ -230,7 +234,7 @@ public class Controller extends Lw3dController {
 		physicalNode.setMass(1);
 		physicalNode.getTransform().getPosition().z = -15f;
 		physicalNode.getTransform().getPosition().x = 8f;
-		rootNode.attach(model.getCameraNode());
+		//rootNode.attach(model.getCameraNode());
 		rootNode.attach(physicalNode);
 		physicalNode.attach(cubes[0]);
 		physicalNode.getMovement().getPosition().y = 0.02f;
@@ -263,6 +267,18 @@ public class Controller extends Lw3dController {
 		//cube.getMovement().getPosition().x = -0.01f;
 		cube.getMovement().getRotation().fromAngleNormalAxis(0.03f,
 				Vector3f.UNIT_Z);
+		
+		Ship ship = new Ship();
+		model.setOwnShip(ship);
+		ship.setMass(0.01f);
+		rootNode.attach(ship);
+		cube.attach(model.getCameraNode());
+		model.getCameraNode().getTransform().getPosition().z = -1f;
+		GeometryNode shipGeometryNode = new GeometryNode(
+				GeometryLoader.loadObj("/ship1.obj"), defaultMaterial);
+		ship.attach(shipGeometryNode);
+		
+		
 		
 		// Create render passes
 		synchronized (model.getRenderPasses()) {

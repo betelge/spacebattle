@@ -10,7 +10,7 @@ import lw3d.utils.GeometryLoader;
 import lw3d.utils.StringLoader;
 import lw3d.utils.TextureLoader;
 
-public class ExampleApplet extends Applet {
+public class SpacebattleApplet extends Applet {
 
 	/**
 	 * 
@@ -19,7 +19,7 @@ public class ExampleApplet extends Applet {
 
 	final private boolean fullscreen = false;
 
-	Example test;
+	Spacebattle test;
 
 	public void init() {
 	}

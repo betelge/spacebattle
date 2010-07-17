@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import nodes.Physical;
+import nodes.Ship;
 
 import lw3d.Lw3dSimulation;
 import lw3d.Lw3dSimulator;
@@ -71,6 +72,16 @@ public class Simulation extends Lw3dSimulation {
 		//System.out.println("Simulator processing node: " + node);
 
 		Transform currentTransform = transform.mult(node.getTransform());
+		
+		if (node instanceof Ship) {
+			Ship ship = (Ship) node;
+			float value = ship.getMainEngineValue();
+			if(value > 0) {
+				Vector3f acc = ship.getAcceleration();
+				acc.set(ship.getMainEngineForce());
+				acc.mult(value);
+			}
+		}
 
 		if (node instanceof Physical) {
 			Physical physical = (Physical) node;

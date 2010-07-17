@@ -1,7 +1,7 @@
 package spacebattle;
 
 
-public class Example {
+public class Spacebattle {
 
 	/**
 	 * @param args
