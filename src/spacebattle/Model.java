@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
 
+import nodes.Ship;
+
 import org.lwjgl.opengl.Display;
 
 import lw3d.Lw3dModel;
@@ -42,6 +44,8 @@ public class Model extends Lw3dModel {
 	public enum GameState {
 		INIT, MENU, PLAY, PAUSE
 	}
+	
+	private Ship ownShip; 
 
 	public Model() {
 		this(null);
@@ -57,6 +61,14 @@ public class Model extends Lw3dModel {
 
 	public GameState getGameState() {
 		return gameState;
+	}
+
+	public void setOwnShip(Ship ownShip) {
+		this.ownShip = ownShip;
+	}
+
+	public Ship getOwnShip() {
+		return ownShip;
 	}
 
 }
