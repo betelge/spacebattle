@@ -146,7 +146,7 @@ public class Controller extends Lw3dController {
 
 	private void setUpLevel() {
 
-		Geometry cubeMesh = GeometryLoader.loadObj("/untitled.obj");
+		Geometry cubeMesh = GeometryLoader.loadObj("/sphere.obj");
 
 		Set<Shader> shaders = new HashSet<Shader>();
 		Set<Shader> fboShaders = new HashSet<Shader>();
@@ -215,7 +215,7 @@ public class Controller extends Lw3dController {
 		// FBO texture
 		Texture fboTexture = new Texture(null, TextureType.TEXTURE_2D, Display
 				.getDisplayMode().getWidth(), Display.getDisplayMode()
-				.getHeight(), TexelType.UBYTE, Format.GL_RGBA8, Filter.LINEAR,
+				.getHeight(), TexelType.UBYTE, Format.GL_RGBA8, Filter.LINEAR_MIPMAP_NEAREST,
 				WrapMode.CLAMP);
 
 		RenderBuffer depthBuffer = new RenderBuffer(Format.GL_DEPTH_COMPONENT,
@@ -272,12 +272,12 @@ public class Controller extends Lw3dController {
 		model.setOwnShip(ship);
 		ship.setMass(0.01f);
 		rootNode.attach(ship);
-		cube.attach(model.getCameraNode());
+		rootNode.attach(model.getCameraNode());
 		model.getCameraNode().getTransform().getPosition().z = -1f;
 		GeometryNode shipGeometryNode = new GeometryNode(
 				GeometryLoader.loadObj("/ship1.obj"), defaultMaterial);
 		ship.attach(shipGeometryNode);
-		
+		ship.getMovement().getPosition().x = -0.025f;
 		
 		
 		// Create render passes
