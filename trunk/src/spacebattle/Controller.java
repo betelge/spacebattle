@@ -40,6 +40,7 @@ import lw3d.renderer.Texture.Filter;
 import lw3d.renderer.Texture.TexelType;
 import lw3d.renderer.Texture.TextureType;
 import lw3d.renderer.Texture.WrapMode;
+import lw3d.renderer.managers.GeometryManager;
 import lw3d.renderer.passes.BloomPass;
 import lw3d.renderer.passes.QuadRenderPass;
 import lw3d.renderer.passes.SceneRenderPass;
@@ -60,12 +61,13 @@ public class Controller extends Lw3dController {
 
 		assert (model.getGameState() == GameState.INIT);
 		
+		simulator.setSimulation(new Simulation(50));
+		
 		// TODO: Load a menu and respond to it
 		//model.setGameState(GameState.MENU);
 		
 		setUpLevel();
 		model.setGameState(GameState.PLAY);
-		simulator.setSimulation(new Simulation(50));
 		simulator.start();
 	}
 
@@ -77,7 +79,9 @@ public class Controller extends Lw3dController {
 					Vector3f.UNIT_Y);
 			rot.multThis(new Quaternion().fromAngleNormalAxis(dY * 0.01f,
 					Vector3f.UNIT_X));
-			model.getCameraNode().getTransform().getRotation().multThis(rot);
+			synchronized (model.getRenderPasses()) {
+				model.getCameraNode().getTransform().getRotation().multThis(rot);
+			}
 		}
 	}
 
@@ -87,7 +91,9 @@ public class Controller extends Lw3dController {
 		case PLAY:
 			Quaternion rot = new Quaternion().fromAngleNormalAxis(
 					dWheel * 0.001f, Vector3f.UNIT_Z);
-			model.getCameraNode().getTransform().getRotation().multThis(rot);
+			synchronized (model.getRenderPasses()) {
+				model.getCameraNode().getTransform().getRotation().multThis(rot);
+			}
 		}
 	}
 
@@ -151,6 +157,7 @@ public class Controller extends Lw3dController {
 		Set<Shader> shaders = new HashSet<Shader>();
 		Set<Shader> fboShaders = new HashSet<Shader>();
 		Set<Shader> lightShaders = new HashSet<Shader>();
+		Set<Shader> ellipseShaders = new HashSet<Shader>();
 
 		try {
 			shaders.add(new Shader(Shader.Type.VERTEX, StringLoader
@@ -171,6 +178,11 @@ public class Controller extends Lw3dController {
 					.loadString("/default.vertex")));
 			lightShaders.add(new Shader(Shader.Type.FRAGMENT, StringLoader
 					.loadString("/light.fragment")));
+			
+			ellipseShaders.add(new Shader(Shader.Type.VERTEX, StringLoader
+					.loadString("/default.vertex")));
+			ellipseShaders.add(new Shader(Shader.Type.FRAGMENT, StringLoader
+					.loadString("/ellipse.fragment")));
 
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
@@ -180,9 +192,12 @@ public class Controller extends Lw3dController {
 		ShaderProgram shaderProgram = new ShaderProgram(shaders);
 		ShaderProgram fboShaderProgram = new ShaderProgram(fboShaders);
 		ShaderProgram lightProgram = new ShaderProgram(lightShaders);
+		ShaderProgram ellipseProgram = new ShaderProgram(ellipseShaders);
+		
 		Material defaultMaterial = new Material(shaderProgram);
 		Material fboMaterial = new Material(fboShaderProgram);
 		Material lightMaterial = new Material(lightProgram);
+		Material ellipseMaterial = new Material(ellipseProgram);
 
 		Node rootNode = new Node();
 		GeometryNode[] cubes = new GeometryNode[2 - 1];
@@ -278,7 +293,16 @@ public class Controller extends Lw3dController {
 				GeometryLoader.loadObj("/ship1.obj"), defaultMaterial);
 		ship.attach(shipGeometryNode);
 		ship.getMovement().getPosition().x = -0.025f;
-		
+				
+		GeometryNode map = new GeometryNode(GeometryManager.QUAD, ellipseMaterial);
+		ellipseMaterial.addUniform(new Uniform("focus", 0.7f, 0.3f));
+		ellipseMaterial.addUniform(new Uniform("major", 0.4f));
+		cameraNode.attach(map);
+		map.getTransform().setPosition(new Vector3f(0f, -0.60f,-2f));
+		map.getTransform().getScale().multThis(0.1f);
+		((Simulation) simulator.getSimulation()).setPlanet(cube);
+		((Simulation) simulator.getSimulation()).setSatelite(ship);
+		((Simulation) simulator.getSimulation()).setEclipseMaterial(ellipseMaterial);
 		
 		// Create render passes
 		synchronized (model.getRenderPasses()) {
@@ -287,7 +311,7 @@ public class Controller extends Lw3dController {
 			//model.getRenderPasses().add(new QuadRenderPass(fboMaterial));
 			model.getRenderPasses().add(
 					new BloomPass(fboMaterial.getTextures().get("source"),
-							model.getDrawWidth()/4, model.getDrawHeight()/4));
+							model.getDrawWidth(), model.getDrawHeight()));
 			
 		}
 	}
