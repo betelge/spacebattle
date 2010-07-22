@@ -1,0 +1,18 @@
+#version 120
+
+uniform float radius = 0.03;
+uniform vec2 planetPos = vec2(0.5, 0.5);
+uniform vec2 focus = vec2(0.7, 0.8);
+uniform float major = 0.56;
+uniform vec3 orbitColor = vec3(0.2, 1.0, 0.1);
+uniform vec3 planetColor = vec3(0.8);
+
+varying vec2 tc;
+varying vec3 N;
+
+void main()
+{
+	vec4 planet = vec4(step(-radius, -distance(tc, planetPos)));
+	vec4 orbit = vec4(orbitColor * smoothstep(-0.015, -0.01, -abs(distance(tc, planetPos) + distance(tc, focus) - major)), 1.0);
+	gl_FragColor = planet + orbit;
+}

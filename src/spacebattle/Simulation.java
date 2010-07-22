@@ -11,11 +11,19 @@ import lw3d.Lw3dSimulation;
 import lw3d.Lw3dSimulator;
 import lw3d.math.Transform;
 import lw3d.math.Vector3f;
+import lw3d.renderer.Material;
+import lw3d.renderer.Movable;
 import lw3d.renderer.Node;
+import lw3d.renderer.Uniform;
 
 public class Simulation extends Lw3dSimulation {
 	
 	final public float G = 0.01f;
+	
+	private Physical ellipsePlanet = null;
+	private Movable ellipseSatelite = null;
+	
+	private Material ellipseMaterial = null;
 
 	public Simulation(long timeStep) {
 		super(timeStep);
@@ -32,6 +40,52 @@ public class Simulation extends Lw3dSimulation {
 	@Override
 	protected void beforeProcessingNodes() {
 		gravitySources.clear();
+		
+		if(ellipsePlanet != null && ellipseSatelite != null && ellipseMaterial != null) {
+			
+			float g = 100000 * G * ellipsePlanet.getMass();
+			
+			Vector3f relPos = ellipseSatelite.getTransform().getPosition().sub(
+					ellipsePlanet.getTransform().getPosition());
+			
+			Vector3f relVel = ellipseSatelite.getMovement().getPosition().sub(
+					ellipsePlanet.getTransform().getPosition());
+			
+			// E is really E/m
+			float E = 0.5f * relVel.getLengthSquared() + g / relPos.getLength();
+			
+			System.out.println("Energy " + E);
+			
+			// semi major
+			float a = -E / (2f * g);
+						
+			// (Angular momentum / mass)^2, |(r x v)|^2
+			float h2 = relPos.cross(relVel).getLengthSquared();		
+			
+			// eccentricity
+			float e = (float)Math.sqrt( 1 +  (2f * E * h2)/(g)/(g) );
+			
+			System.out.println("e " + e);
+			
+			float perigee = (1-e)*a;
+			float apogee = (1+e)*a;
+			
+			float scale = 0.25f / perigee;
+			
+			Uniform uniforms[] = ellipseMaterial.getUniforms();
+			if(uniforms.length >= 2) {
+				// Focus
+				uniforms[0].set(scale * (apogee - perigee), 0f);
+				// Major
+				uniforms[1].set(scale * 2 * a);
+				
+				System.out.println("focus " + (apogee - perigee));
+				System.out.println("major " + 2*a);
+				System.out.println("perigee " + perigee);
+				System.out.println("apogee " + apogee);
+				System.out.println("scale " + scale);
+			}
+		}
 	}
 
 	@Override
@@ -108,6 +162,30 @@ public class Simulation extends Lw3dSimulation {
 		}
 
 		super.processNode(node);
+	}
+
+	public Movable getPlanet() {
+		return ellipsePlanet;
+	}
+
+	public void setPlanet(Physical planet) {
+		this.ellipsePlanet = planet;
+	}
+
+	public Movable getSatelite() {
+		return ellipseSatelite;
+	}
+
+	public void setSatelite(Movable satelite) {
+		this.ellipseSatelite = satelite;
+	}
+
+	public void setEclipseMaterial(Material eclipseMaterial) {
+		this.ellipseMaterial = eclipseMaterial;
+	}
+
+	public Material getEclipseMaterial() {
+		return ellipseMaterial;
 	}
 
 }
