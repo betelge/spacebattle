@@ -53,25 +53,25 @@ public class Simulation extends Lw3dSimulation {
 			float timeStep = getTimeStep();
 			
 			// E is really E/m
-			float E = 0.5f * timeStep*timeStep * relVel.getLengthSquared() - K / relPos.getLength();
+			float E = 0.5f * relVel.getLengthSquared() - K / relPos.getLength();
 			
-			System.out.println("Energy " + E);
-			
-			// semi major
-			float a = 1;//h2/K/(1-e*e);//-E / (2f * K);
+			//System.out.println("Energy " + E);
 						
 			// (Angular momentum / mass)^2, |(r x v)|^2
-			float h2 = timeStep*timeStep * relPos.cross(relVel).getLengthSquared();		
+			float h2 = relPos.cross(relVel).getLengthSquared();		
 			
 			// eccentricity
 			float e = (float)Math.sqrt( 1 +  (2f * E * h2)/(K)/(K) );
 			
-			System.out.println("e " + e);
+			// semi major
+			float a = h2/K/(1-e*e);//-E / (2f * K);
 			
-			float perigee = (1-e)*a;
-			float apogee = (1+e)*a;
+			//System.out.println("e " + e);
 			
-			float scale = 0.25f / perigee;
+			float perigee = (1-e)*2*a;
+			float apogee = (1+e)*2*a;
+			
+			float scale = 0.04f;// 0.25f / perigee;
 			
 			Uniform uniforms[] = ellipseMaterial.getUniforms();
 			if(uniforms.length >= 2) {
@@ -80,11 +80,11 @@ public class Simulation extends Lw3dSimulation {
 				// Major
 				uniforms[1].set(scale * 2 * a);
 				
-				System.out.println("focus " + scale * (apogee - perigee));
+				/*System.out.println("focus " + scale * (apogee - perigee));
 				System.out.println("major " + scale*2*a);
-				System.out.println("perigee " + perigee);
-				System.out.println("apogee " + apogee);
-				System.out.println("scale " + scale);
+				System.out.println("perigee " + scale*perigee);
+				System.out.println("apogee " + scale*apogee);
+				System.out.println("scale " + scale);*/
 			}
 		}
 	}
@@ -131,10 +131,10 @@ public class Simulation extends Lw3dSimulation {
 		if (node instanceof Ship) {
 			Ship ship = (Ship) node;
 			float value = ship.getMainEngineValue();
-			if(value > 0) {
+			if(value >= 0) {
 				Vector3f acc = ship.getAcceleration();
 				acc.set(ship.getMainEngineForce());
-				acc.mult(value);
+				acc.multThis(value);
 			}
 		}
 
