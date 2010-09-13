@@ -18,25 +18,40 @@ public class SpacebattleApplet extends Applet {
 	private static final long serialVersionUID = 1L;
 
 	final private boolean fullscreen = false;
-
-	Spacebattle test;
+	
+	Canvas displayParent;
 
 	public void init() {
 	}
 
 	public void start() {
 		setLayout(new BorderLayout());
-		Canvas displayParent = new Canvas();
-		displayParent.setSize(getWidth(), getHeight());
-		add(displayParent);
+		
+		try {
+			displayParent = new Canvas();
+			displayParent.setSize(getWidth(), getHeight());
+			add(displayParent);
+			displayParent.setFocusable(true);
+			displayParent.requestFocus();
+			displayParent.setIgnoreRepaint(true);
+			setVisible(true);
+		} catch (Exception e) {
+			System.err.println(e);
+			throw new RuntimeException("Unable to create display."); 
+		}
 
+		try {
 		GeometryLoader.setObject(this);
 		StringLoader.setObject(this);
 		TextureLoader.setObject(this);
 
-		Model model = new Model(displayParent);
-		View view = new View(model);
-		new Controller(model, view);
+		
+			Model model = new Model(displayParent);
+			View view = new View(model);
+			new Controller(model, view);
+		} catch (Exception e) {
+			System.err.println(e);
+		}
 	}
 
 }

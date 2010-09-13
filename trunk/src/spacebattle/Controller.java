@@ -228,18 +228,17 @@ public class Controller extends Lw3dController {
 		}
 
 		// FBO texture
-		Texture fboTexture = new Texture(null, TextureType.TEXTURE_2D, Display
-				.getDisplayMode().getWidth(), Display.getDisplayMode()
-				.getHeight(), TexelType.UBYTE, Format.GL_RGBA8, Filter.LINEAR_MIPMAP_NEAREST,
+		Texture fboTexture = new Texture(null, TextureType.TEXTURE_2D, model.getDrawWidth(),
+				model.getDrawHeight(), TexelType.UBYTE, Format.GL_RGBA8, Filter.LINEAR_MIPMAP_NEAREST,
 				WrapMode.CLAMP);
 
 		RenderBuffer depthBuffer = new RenderBuffer(Format.GL_DEPTH_COMPONENT,
-				Display.getDisplayMode().getWidth(), Display.getDisplayMode()
-						.getHeight());
+				model.getDrawWidth(), model.getDrawHeight());
 
-		FBO myFBO = new FBO(fboTexture, depthBuffer, Display.getDisplayMode()
-				.getWidth(), Display.getDisplayMode().getHeight());
-
+		FBO myFBO = new FBO(fboTexture, depthBuffer, model.getDrawWidth(),
+				model.getDrawHeight());
+		
+		
 		defaultMaterial.addTexture("texture0", texture);
 		fboMaterial.addTexture("source", fboTexture);
 		model.getSimulatedNodes().add(rootNode);
