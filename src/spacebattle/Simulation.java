@@ -8,7 +8,6 @@ import nodes.Physical;
 import nodes.Ship;
 
 import lw3d.Lw3dSimulation;
-import lw3d.Lw3dSimulator;
 import lw3d.math.Transform;
 import lw3d.math.Vector3f;
 import lw3d.renderer.Material;
@@ -43,27 +42,29 @@ public class Simulation extends Lw3dSimulation {
 		
 		if(ellipsePlanet != null && ellipseSatelite != null && ellipseMaterial != null) {
 			
-			float g = 100000 * G * ellipsePlanet.getMass();
+			float K = G * ellipsePlanet.getMass();
 			
 			Vector3f relPos = ellipseSatelite.getTransform().getPosition().sub(
 					ellipsePlanet.getTransform().getPosition());
 			
 			Vector3f relVel = ellipseSatelite.getMovement().getPosition().sub(
-					ellipsePlanet.getTransform().getPosition());
+					ellipsePlanet.getMovement().getPosition());
+			
+			float timeStep = getTimeStep();
 			
 			// E is really E/m
-			float E = 0.5f * relVel.getLengthSquared() + g / relPos.getLength();
+			float E = 0.5f * timeStep*timeStep * relVel.getLengthSquared() - K / relPos.getLength();
 			
 			System.out.println("Energy " + E);
 			
 			// semi major
-			float a = -E / (2f * g);
+			float a = 1;//h2/K/(1-e*e);//-E / (2f * K);
 						
 			// (Angular momentum / mass)^2, |(r x v)|^2
-			float h2 = relPos.cross(relVel).getLengthSquared();		
+			float h2 = timeStep*timeStep * relPos.cross(relVel).getLengthSquared();		
 			
 			// eccentricity
-			float e = (float)Math.sqrt( 1 +  (2f * E * h2)/(g)/(g) );
+			float e = (float)Math.sqrt( 1 +  (2f * E * h2)/(K)/(K) );
 			
 			System.out.println("e " + e);
 			
@@ -75,12 +76,12 @@ public class Simulation extends Lw3dSimulation {
 			Uniform uniforms[] = ellipseMaterial.getUniforms();
 			if(uniforms.length >= 2) {
 				// Focus
-				uniforms[0].set(scale * (apogee - perigee), 0f);
+				uniforms[0].set(0.5f + scale * e*a, 0.5f);
 				// Major
 				uniforms[1].set(scale * 2 * a);
 				
-				System.out.println("focus " + (apogee - perigee));
-				System.out.println("major " + 2*a);
+				System.out.println("focus " + scale * (apogee - perigee));
+				System.out.println("major " + scale*2*a);
 				System.out.println("perigee " + perigee);
 				System.out.println("apogee " + apogee);
 				System.out.println("scale " + scale);

@@ -3,7 +3,7 @@ package nodes;
 import lw3d.math.Vector3f;
 
 public class Ship extends PhysicalNode {
-	private Vector3f mainEngineForce = new Vector3f(0f, 0f, -0.01f);
+	private Vector3f mainEngineForce = new Vector3f(0f, 0f, -0.0000005f);
 	
 	private float mainEngineValue = 0f;
 	
