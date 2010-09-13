@@ -1,7 +1,6 @@
 package spacebattle;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -11,14 +10,10 @@ import nodes.PhysicalNode;
 import nodes.Ship;
 
 import org.lwjgl.input.Keyboard;
-import org.lwjgl.opengl.Display;
 
 import spacebattle.Model.GameState;
 
 import lw3d.Lw3dController;
-import lw3d.Lw3dModel;
-import lw3d.Lw3dSimulation;
-import lw3d.Lw3dView;
 import lw3d.Lw3dModel.RendererMode;
 import lw3d.math.Quaternion;
 import lw3d.math.Transform;
@@ -29,7 +24,6 @@ import lw3d.renderer.Geometry;
 import lw3d.renderer.GeometryNode;
 import lw3d.renderer.Light;
 import lw3d.renderer.Material;
-import lw3d.renderer.MovableGeometryNode;
 import lw3d.renderer.Node;
 import lw3d.renderer.RenderBuffer;
 import lw3d.renderer.ShaderProgram;
@@ -244,6 +238,8 @@ public class Controller extends Lw3dController {
 		fboMaterial.addTexture("source", fboTexture);
 		model.getSimulatedNodes().add(rootNode);
 		CameraNode cameraNode = new CameraNode();
+		cameraNode.getTransform().getPosition().set(0f, 15f, 0f);
+		//cameraNode.getTransform().getRotation().lookAt(new Vector3f(0f,-1f,0f), new Vector3f(0f,0f,1f));
 		model.setCameraNode(cameraNode);
 		PhysicalNode physicalNode = new PhysicalNode();
 		physicalNode.setMass(1);
@@ -292,7 +288,7 @@ public class Controller extends Lw3dController {
 		GeometryNode shipGeometryNode = new GeometryNode(
 				GeometryLoader.loadObj("/ship1.obj"), defaultMaterial);
 		ship.attach(shipGeometryNode);
-		ship.getMovement().getPosition().x = -0.025f;
+		ship.getMovement().getPosition().x = -0.0125f;
 				
 		GeometryNode map = new GeometryNode(GeometryManager.QUAD, ellipseMaterial);
 		ellipseMaterial.addUniform(new Uniform("focus", 0.7f, 0.3f));
