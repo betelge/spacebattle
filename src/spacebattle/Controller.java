@@ -19,6 +19,7 @@ import lw3d.Lw3dController;
 import lw3d.Lw3dModel;
 import lw3d.Lw3dSimulation;
 import lw3d.Lw3dView;
+import lw3d.Lw3dModel.RendererMode;
 import lw3d.math.Quaternion;
 import lw3d.math.Transform;
 import lw3d.math.Vector3f;
@@ -162,7 +163,7 @@ public class Controller extends Lw3dController {
 		try {
 			shaders.add(new Shader(Shader.Type.VERTEX, StringLoader
 					.loadString("/default.vertex")));
-			if(!model.isUseFixedVertexPipeline())
+			if(model.getRendererMode() == RendererMode.SHADERS)
 				shaders.add(new Shader(Shader.Type.FRAGMENT, StringLoader
 						.loadString("/default.fragment")));
 			else
