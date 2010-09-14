@@ -50,7 +50,7 @@ public class Simulation extends Lw3dSimulation {
 			Vector3f relVel = ellipseSatelite.getMovement().getPosition().sub(
 					ellipsePlanet.getMovement().getPosition());
 			
-			float timeStep = getTimeStep();
+			//float timeStep = getTimeStep();
 			
 			// E is really E/m
 			float E = 0.5f * relVel.getLengthSquared() - K / relPos.getLength();
@@ -68,8 +68,8 @@ public class Simulation extends Lw3dSimulation {
 			
 			//System.out.println("e " + e);
 			
-			float perigee = (1-e)*2*a;
-			float apogee = (1+e)*2*a;
+			/*float perigee = (1-e)*2*a;
+			float apogee = (1+e)*2*a;*/
 			
 			float scale = 0.04f;// 0.25f / perigee;
 			

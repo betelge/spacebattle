@@ -37,7 +37,6 @@ import lw3d.renderer.Texture.TextureType;
 import lw3d.renderer.Texture.WrapMode;
 import lw3d.renderer.managers.GeometryManager;
 import lw3d.renderer.passes.BloomPass;
-import lw3d.renderer.passes.QuadRenderPass;
 import lw3d.renderer.passes.SceneRenderPass;
 import lw3d.utils.GeometryLoader;
 import lw3d.utils.StringLoader;
@@ -238,8 +237,8 @@ public class Controller extends Lw3dController {
 		fboMaterial.addTexture("source", fboTexture);
 		model.getSimulatedNodes().add(rootNode);
 		CameraNode cameraNode = new CameraNode();
-		cameraNode.getTransform().getPosition().set(0f, 15f, 0f);
-		//cameraNode.getTransform().getRotation().lookAt(new Vector3f(0f,-1f,0f), new Vector3f(0f,0f,1f));
+		cameraNode.getTransform().getPosition().set(0f, 30f, -15f);
+		cameraNode.getTransform().getRotation().fromAngleNormalAxis((float) -Math.PI/2.3f, Vector3f.UNIT_X);
 		model.setCameraNode(cameraNode);
 		PhysicalNode physicalNode = new PhysicalNode();
 		physicalNode.setMass(1);
