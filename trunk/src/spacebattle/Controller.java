@@ -37,6 +37,7 @@ import lw3d.renderer.Texture.TextureType;
 import lw3d.renderer.Texture.WrapMode;
 import lw3d.renderer.managers.GeometryManager;
 import lw3d.renderer.passes.BloomPass;
+import lw3d.renderer.passes.ClearPass;
 import lw3d.renderer.passes.SceneRenderPass;
 import lw3d.utils.GeometryLoader;
 import lw3d.utils.StringLoader;
@@ -299,11 +300,21 @@ public class Controller extends Lw3dController {
 		((Simulation) simulator.getSimulation()).setSatelite(ship);
 		((Simulation) simulator.getSimulation()).setEclipseMaterial(ellipseMaterial);
 		
+		FBO firstTarget = myFBO;
+		
 		// Create render passes
 		synchronized (model.getRenderPasses()) {
+			
+			// Clear the FBO
 			model.getRenderPasses().add(
-					new SceneRenderPass(rootNode, cameraNode, myFBO));
-			//model.getRenderPasses().add(new QuadRenderPass(fboMaterial));
+					new ClearPass(ClearPass.COLOR_BUFFER_BIT | ClearPass.DEPTH_BUFFER_BIT,
+							firstTarget));
+			
+			// Render the scene to the FBO
+			model.getRenderPasses().add(
+					new SceneRenderPass(rootNode, cameraNode, firstTarget));
+			
+			// Apply Bloom to the FBO and put result on screen.
 			model.getRenderPasses().add(
 					new BloomPass(fboMaterial.getTextures().get("source"),
 							model.getDrawWidth(), model.getDrawHeight()));
