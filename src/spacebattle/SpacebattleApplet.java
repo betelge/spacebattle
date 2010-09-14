@@ -57,4 +57,8 @@ public class SpacebattleApplet extends Applet {
 		}
 	}
 
+	public void destroy() {
+		remove(displayParent);
+		super.destroy();
+	}
 }
