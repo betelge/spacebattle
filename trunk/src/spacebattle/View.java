@@ -1,6 +1,5 @@
 package spacebattle;
 
-import lw3d.Lw3dModel;
 import lw3d.Lw3dView;
 
 public class View extends Lw3dView {
