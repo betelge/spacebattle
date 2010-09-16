@@ -13,6 +13,7 @@ varying vec3 N;
 void main()
 {
 	vec4 planet = vec4(step(-radius, -distance(tc, planetPos)));
-	vec4 orbit = vec4(orbitColor * smoothstep(-0.015, -0.01, -abs(distance(tc, planetPos) + distance(tc, focus) - major)), 1.0);
+	vec4 orbit = vec4(orbitColor, 1.0);
+	orbit *= smoothstep(-0.015, -0.01, -abs(distance(tc, planetPos) + distance(tc, focus) - major));
 	gl_FragColor = planet + orbit;
 }

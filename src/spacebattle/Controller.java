@@ -300,6 +300,27 @@ public class Controller extends Lw3dController {
 		((Simulation) simulator.getSimulation()).setSatelite(ship);
 		((Simulation) simulator.getSimulation()).setEclipseMaterial(ellipseMaterial);
 		
+		// Noise
+		Texture noiseTexture = TextureLoader.generateNoiseTexture(TextureType.TEXTURE_3D, 32, 6896364244502240606l);
+		Set<Shader> noiseShaders = new HashSet<Shader>();
+		
+		try {
+			noiseShaders.add(new Shader(Shader.Type.VERTEX, StringLoader
+					.loadString("/default.vertex")));
+			noiseShaders.add(new Shader(Shader.Type.FRAGMENT, StringLoader
+					.loadString("/noise.fragment")));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		Material noiseMaterial = new Material(new ShaderProgram(noiseShaders));
+		noiseMaterial.addTexture("noise", noiseTexture);
+		
+		shipGeometryNode.setMaterial(noiseMaterial);
+		cube.setMaterial(noiseMaterial);
+		
+		
 		FBO firstTarget = myFBO;
 		
 		// Create render passes
