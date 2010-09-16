@@ -301,7 +301,7 @@ public class Controller extends Lw3dController {
 		((Simulation) simulator.getSimulation()).setEclipseMaterial(ellipseMaterial);
 		
 		// Noise
-		Texture noiseTexture = TextureLoader.generateNoiseTexture(TextureType.TEXTURE_3D, 32, 6896364244502240606l);
+		Texture noiseTexture = TextureLoader.generateNoiseTexture(TextureType.TEXTURE_3D, 8, 896364244502240606l);
 		Set<Shader> noiseShaders = new HashSet<Shader>();
 		
 		try {
@@ -317,7 +317,7 @@ public class Controller extends Lw3dController {
 		Material noiseMaterial = new Material(new ShaderProgram(noiseShaders));
 		noiseMaterial.addTexture("noise", noiseTexture);
 		
-		shipGeometryNode.setMaterial(noiseMaterial);
+		//shipGeometryNode.setMaterial(noiseMaterial);
 		cube.setMaterial(noiseMaterial);
 		
 		

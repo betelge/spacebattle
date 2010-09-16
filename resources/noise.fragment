@@ -9,24 +9,31 @@ varying vec3 N;
 
 const float pi = 3.14159;
 
+float my_func(vec3 tc);
 float my_noise3(vec3 tc);
 
 void main()
 {
-	vec3 tc = 10.0 * modelPos;
-	float F = abs(my_noise3(tc));
-	float e = 1;
-	float Fx = abs(my_noise3(vec3(tc.x + e, tc.y, tc.z)));
-	float Fy = abs(my_noise3(vec3(tc.x, tc.y + e, tc.z)));
-	float Fz = abs(my_noise3(vec3(tc.x, tc.y, tc.z + e)));
+	vec3 tc = modelPos;
+	float F = 0.5*my_func(tc)+0.5;
+	/*float e = 1;
+	float Fx = my_noise3(abs(vec3(tc.x + e, tc.y, tc.z)));
+	float Fy = my_noise3(abs(vec3(tc.x, tc.y + e, tc.z)));
+	float Fz = my_noise3(abs(vec3(tc.x, tc.y, tc.z + e)));
 	vec3 gradient = vec3(Fx-F, Fy-F, Fz-F) / e;
-	vec3 normal = normalize(normalize(N)-gradient);
-	gl_FragColor = vec4( vec3(dot(normal, normalize(lightPos-pos))), 1.0);
+	vec3 normal = normalize(normalize(modelN)-0.1*gradient);*/
+	gl_FragColor = vec4(F * vec3(0.8, 0.8, 0.3) * clamp(dot(normalize(N), normalize(lightPos-pos)), 0.0, 1.0 ), 1.0); //vec4( vec3(dot(normal, normalize(lightPos-pos))), 1.0);
+}
+
+float my_func(vec3 tc)
+{
+	return sin(12.0*tc.x*tc.z + 4.0*tc.y*tc.y + abs(my_noise3(tc)) + 0.5 * abs(my_noise3(2.0*tc))
+		+ 0.25 * abs(my_noise3(4.0*tc)) + 0.125 * abs(my_noise3(8.0*tc)) );
 }
 
 float my_noise3(vec3 tc)
 {
-	vec2 hi = texture3D(noiseTexture, tc).xa;
-	float rot = 2.0 * pi * texture3D(noiseTexture, 1.0/32.0 * tc).x;
+	vec2 hi = 2.0 * texture3D(noiseTexture, tc).ra - 1.0;
+	float rot = 2.0 * pi * (2.0 * texture3D(noiseTexture, 1.0/32.0 * tc).x - 1.0);
 	return hi.x * cos(rot) + hi.y * sin(rot);
 } 
