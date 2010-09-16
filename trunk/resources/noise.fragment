@@ -1,0 +1,32 @@
+#version 120
+
+uniform sampler3D noiseTexture;
+uniform vec3 lightPos;
+
+varying vec3 pos;
+varying vec3 modelPos;
+varying vec3 N;
+
+const float pi = 3.14159;
+
+float my_noise3(vec3 tc);
+
+void main()
+{
+	vec3 tc = 10.0 * modelPos;
+	float F = abs(my_noise3(tc));
+	float e = 1;
+	float Fx = abs(my_noise3(vec3(tc.x + e, tc.y, tc.z)));
+	float Fy = abs(my_noise3(vec3(tc.x, tc.y + e, tc.z)));
+	float Fz = abs(my_noise3(vec3(tc.x, tc.y, tc.z + e)));
+	vec3 gradient = vec3(Fx-F, Fy-F, Fz-F) / e;
+	vec3 normal = normalize(normalize(N)-gradient);
+	gl_FragColor = vec4( vec3(dot(normal, normalize(lightPos-pos))), 1.0);
+}
+
+float my_noise3(vec3 tc)
+{
+	vec2 hi = texture3D(noiseTexture, tc).xa;
+	float rot = 2.0 * pi * texture3D(noiseTexture, 1.0/32.0 * tc).x;
+	return hi.x * cos(rot) + hi.y * sin(rot);
+} 
