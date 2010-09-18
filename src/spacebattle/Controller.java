@@ -12,6 +12,7 @@ import nodes.Ship;
 import org.lwjgl.input.Keyboard;
 
 import spacebattle.Model.GameState;
+import world.GalaxyGenerator;
 
 import lw3d.Lw3dController;
 import lw3d.Lw3dModel.RendererMode;
@@ -39,6 +40,7 @@ import lw3d.renderer.managers.GeometryManager;
 import lw3d.renderer.passes.BloomPass;
 import lw3d.renderer.passes.ClearPass;
 import lw3d.renderer.passes.SceneRenderPass;
+import lw3d.renderer.passes.SetPass;
 import lw3d.utils.GeometryLoader;
 import lw3d.utils.StringLoader;
 import lw3d.utils.TextureLoader;
@@ -147,12 +149,13 @@ public class Controller extends Lw3dController {
 
 	private void setUpLevel() {
 
-		Geometry cubeMesh = GeometryLoader.loadObj("/sphere.obj");
+		Geometry sphereMesh = GeometryLoader.loadObj("/sphere.obj");
 
 		Set<Shader> shaders = new HashSet<Shader>();
 		Set<Shader> fboShaders = new HashSet<Shader>();
 		Set<Shader> lightShaders = new HashSet<Shader>();
 		Set<Shader> ellipseShaders = new HashSet<Shader>();
+		Set<Shader> galaxyShaders = new HashSet<Shader>();
 
 		try {
 			shaders.add(new Shader(Shader.Type.VERTEX, StringLoader
@@ -178,6 +181,11 @@ public class Controller extends Lw3dController {
 					.loadString("/default.vertex")));
 			ellipseShaders.add(new Shader(Shader.Type.FRAGMENT, StringLoader
 					.loadString("/ellipse.fragment")));
+			
+			galaxyShaders.add(new Shader(Shader.Type.VERTEX, StringLoader
+					.loadString("/galaxy.vertex")));
+			galaxyShaders.add(new Shader(Shader.Type.FRAGMENT, StringLoader
+					.loadString("/galaxy.fragment")));
 
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
@@ -198,7 +206,7 @@ public class Controller extends Lw3dController {
 		GeometryNode[] cubes = new GeometryNode[2 - 1];
 
 		for (int i = 0; i < cubes.length; i++) {
-			cubes[i] = new GeometryNode(cubeMesh, defaultMaterial);
+			cubes[i] = new GeometryNode(sphereMesh, defaultMaterial);
 			cubes[i].getTransform().getPosition().z = -100
 					* (float) Math.random() - 5;
 			cubes[i].getTransform().getPosition().x = cubes[i].getTransform()
@@ -252,7 +260,7 @@ public class Controller extends Lw3dController {
 		cubes[0].getTransform().getPosition().multThis(0f);
 		// cameraNode.getTransform().getPosition().z = -1f;
 
-		PhysicalGeometryNode cube = new PhysicalGeometryNode(cubeMesh,
+		PhysicalGeometryNode cube = new PhysicalGeometryNode(sphereMesh,
 				defaultMaterial);
 		cube.setMass(1);
 		cube.setGravitySource(true);
@@ -262,7 +270,7 @@ public class Controller extends Lw3dController {
 		Light lightNode = new Light(new Transform(new Vector3f(3f, 3f, -15f),
 				new Quaternion()));
 		rootNode.attach(lightNode);
-		GeometryNode lightSphere = new GeometryNode(cubeMesh, lightMaterial);
+		GeometryNode lightSphere = new GeometryNode(sphereMesh, lightMaterial);
 		lightSphere.getTransform().getScale().multThis(0.1f);
 		lightNode.attach(lightSphere);
 
@@ -320,7 +328,22 @@ public class Controller extends Lw3dController {
 		//shipGeometryNode.setMaterial(noiseMaterial);
 		cube.setMaterial(noiseMaterial);
 		
+		// Big planet
+		GeometryNode bigPlanet= new GeometryNode(sphereMesh, noiseMaterial);
+		bigPlanet.getTransform().setPosition(new Vector3f(0f, 0f, -800));
+		bigPlanet.getTransform().getScale().multThis(400f);
+		rootNode.attach(bigPlanet);
 		
+		// Star map
+		Geometry galaxy = GalaxyGenerator.generateGalaxyPointGeometry(6425745746742674257l);
+		ShaderProgram galaxyProgram = new ShaderProgram(galaxyShaders);
+		Material galaxyMaterial = new Material(galaxyProgram);
+		
+		GeometryNode galaxyNode = new GeometryNode(galaxy, galaxyMaterial);
+		galaxyNode.getTransform().setPosition(cube.getTransform().getPosition());
+		galaxyNode.getTransform().getScale().multThis(500);
+		
+		// FBO for renderpasses (bloom)
 		FBO firstTarget = myFBO;
 		
 		// Create render passes
@@ -330,6 +353,16 @@ public class Controller extends Lw3dController {
 			model.getRenderPasses().add(
 					new ClearPass(ClearPass.COLOR_BUFFER_BIT | ClearPass.DEPTH_BUFFER_BIT,
 							firstTarget));
+			
+			// Disable depth writing
+			model.getRenderPasses().add(new SetPass(SetPass.State.DEPTH_WRITE, false));
+			
+			// Render the stars
+			model.getRenderPasses().add(
+					new SceneRenderPass(galaxyNode, cameraNode, firstTarget));
+			
+			// Enable depth writing
+			model.getRenderPasses().add(new SetPass(SetPass.State.DEPTH_WRITE, true));
 			
 			// Render the scene to the FBO
 			model.getRenderPasses().add(
