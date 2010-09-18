@@ -27,8 +27,8 @@ void main()
 
 float my_func(vec3 tc)
 {
-	return sin(12.0*tc.x*tc.z + 4.0*tc.y*tc.y + abs(my_noise3(tc)) + 0.5 * abs(my_noise3(2.0*tc))
-		+ 0.25 * abs(my_noise3(4.0*tc)) + 0.125 * abs(my_noise3(8.0*tc)) );
+	return sin(4.1*tc.x*tc.z*tc.y + 4.0*tc.y*tc.y + abs(my_noise3(tc)) + 0.5 * abs(my_noise3(2.0*tc))
+		+ 0.25 * abs(my_noise3(4.0*tc)) + 0.125 * abs(my_noise3(8.0*tc)));
 }
 
 float my_noise3(vec3 tc)
