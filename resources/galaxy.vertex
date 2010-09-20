@@ -4,17 +4,19 @@ uniform mat4 modelViewMatrix;
 uniform mat4 perspectiveMatrix;
 
 attribute vec3 position;
+attribute vec3 color;
 
-varying vec4 col;
+varying vec3 col;
 
 void main()
 {
+	col = color;
 	vec3 pos = (modelViewMatrix * vec4(position, 1.0)).xyz;
 	gl_Position = perspectiveMatrix * vec4(pos, 1.0);
 	
 	float dist = length(pos) / 1000;
 
 	gl_PointSize = 1.0 / clamp(dist, -0.1, 1.0);
-	col = vec4(1.0 / dist);
-	col = clamp(col, 0.0, 1.0);
+	/*col = vec4(1.0 / dist);
+	col = clamp(col, 0.0, 1.0);*/
 }

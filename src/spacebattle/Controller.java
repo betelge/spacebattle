@@ -290,6 +290,7 @@ public class Controller extends Lw3dController {
 		Ship ship = new Ship();
 		model.setOwnShip(ship);
 		ship.setMass(0.01f);
+		ship.getTransform().getScale().multThis(0.1f);
 		rootNode.attach(ship);
 		rootNode.attach(model.getCameraNode());
 		model.getCameraNode().getTransform().getPosition().z = -1f;
@@ -331,6 +332,7 @@ public class Controller extends Lw3dController {
 		// Big planet
 		GeometryNode bigPlanet= new GeometryNode(sphereMesh, noiseMaterial);
 		bigPlanet.getTransform().setPosition(new Vector3f(0f, 0f, -800));
+		bigPlanet.getTransform().getRotation().fromAngleNormalAxis((float)Math.PI/4, Vector3f.UNIT_X);
 		bigPlanet.getTransform().getScale().multThis(400f);
 		rootNode.attach(bigPlanet);
 		
@@ -341,7 +343,7 @@ public class Controller extends Lw3dController {
 		
 		GeometryNode galaxyNode = new GeometryNode(galaxy, galaxyMaterial);
 		galaxyNode.getTransform().setPosition(cube.getTransform().getPosition());
-		galaxyNode.getTransform().getScale().multThis(500);
+		galaxyNode.getTransform().getScale().multThis(1000);
 		
 		// FBO for renderpasses (bloom)
 		FBO firstTarget = myFBO;
