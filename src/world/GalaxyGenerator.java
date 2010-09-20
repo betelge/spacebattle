@@ -35,11 +35,11 @@ public class GalaxyGenerator {
 		List<Byte> color = new ArrayList<Byte>();
 		
 		
-		Noise noiseSeedR = new Noise(seed),
-			noiseSeedI = new Noise(seed ^42l);
+		//Noise noiseSeedR = new Noise(seed),
+		//	noiseSeedI = new Noise(seed ^42l);
 		
 		int subdivs = 50;
-		int starsTotal = 100;
+		//int starsTotal = 100;
 		
 		// Go through all sectors
 		for(float x = 0.5f; x < subdivs; x++) {
@@ -103,7 +103,7 @@ public class GalaxyGenerator {
 		atColor.name = "color";
 		atColor.normalized = true;
 		atColor.size = 3;
-		atColor.type = Type.BYTE;
+		atColor.type = Type.UBYTE;
 
 		Iterator<Byte> fItC = color.iterator();
 		while (fItC.hasNext())
