@@ -1,9 +1,9 @@
 #version 120
 
-varying vec4 col;
+varying vec3 col;
 
 void main()
 {
-	float r = 4.0*length( gl_PointCoord - vec2(0.5) );
-	gl_FragColor = vec4(exp(-r*r));
+	float r = 5.0*length( gl_PointCoord - vec2(0.5) );
+	gl_FragColor = vec4(col, exp(-r*r));
 }
