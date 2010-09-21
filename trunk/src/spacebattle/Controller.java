@@ -5,14 +5,14 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import nodes.PhysicalGeometryNode;
-import nodes.PhysicalNode;
-import nodes.Ship;
 
 import org.lwjgl.input.Keyboard;
 
 import spacebattle.Model.GameState;
-import world.GalaxyGenerator;
+import spacebattle.nodes.PhysicalGeometryNode;
+import spacebattle.nodes.PhysicalNode;
+import spacebattle.nodes.Ship;
+import spacebattle.world.GalaxyGenerator;
 
 import lw3d.Lw3dController;
 import lw3d.Lw3dModel.RendererMode;
@@ -315,7 +315,7 @@ public class Controller extends Lw3dController {
 		
 		try {
 			noiseShaders.add(new Shader(Shader.Type.VERTEX, StringLoader
-					.loadString("/default.vertex")));
+					.loadString("/planet.vertex")));
 			noiseShaders.add(new Shader(Shader.Type.FRAGMENT, StringLoader
 					.loadString("/noise.fragment")));
 		} catch (IOException e) {
@@ -340,9 +340,8 @@ public class Controller extends Lw3dController {
 		Geometry galaxy = GalaxyGenerator.generateGalaxyPointGeometry(6425745746742674257l);
 		ShaderProgram galaxyProgram = new ShaderProgram(galaxyShaders);
 		Material galaxyMaterial = new Material(galaxyProgram);
-		
 		GeometryNode galaxyNode = new GeometryNode(galaxy, galaxyMaterial);
-		galaxyNode.getTransform().setPosition(cube.getTransform().getPosition());
+		galaxyNode.getTransform().setPosition(cameraNode.getTransform().getPosition());
 		galaxyNode.getTransform().getScale().multThis(1000);
 		
 		// FBO for renderpasses (bloom)

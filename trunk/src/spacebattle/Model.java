@@ -1,7 +1,8 @@
 package spacebattle;
 import java.awt.Canvas;
 
-import nodes.Ship;
+import spacebattle.nodes.Ship;
+
 
 
 import lw3d.Lw3dModel;
