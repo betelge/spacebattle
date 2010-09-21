@@ -16,7 +16,7 @@ void main()
 	
 	float dist = length(pos) / 1000;
 
-	gl_PointSize = 1.0 / clamp(dist, -0.1, 1.0);
+	gl_PointSize = 1.0 / dist;//clamp(dist, -0.1, 1.0);
 	/*col = vec4(1.0 / dist);
 	col = clamp(col, 0.0, 1.0);*/
 }
