@@ -4,8 +4,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import nodes.Physical;
-import nodes.Ship;
+import spacebattle.nodes.Physical;
+import spacebattle.nodes.Ship;
+
 
 import lw3d.Lw3dSimulation;
 import lw3d.math.Transform;
