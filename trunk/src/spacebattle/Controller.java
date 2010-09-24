@@ -9,9 +9,11 @@ import java.util.Set;
 import org.lwjgl.input.Keyboard;
 
 import spacebattle.Model.GameState;
+import spacebattle.managers.PlanetLODManager;
 import spacebattle.nodes.PhysicalGeometryNode;
 import spacebattle.nodes.PhysicalNode;
 import spacebattle.nodes.Ship;
+import spacebattle.planet.Planet;
 import spacebattle.world.GalaxyGenerator;
 
 import lw3d.Lw3dController;
@@ -36,7 +38,6 @@ import lw3d.renderer.Texture.Filter;
 import lw3d.renderer.Texture.TexelType;
 import lw3d.renderer.Texture.TextureType;
 import lw3d.renderer.Texture.WrapMode;
-import lw3d.renderer.managers.GeometryManager;
 import lw3d.renderer.passes.BloomPass;
 import lw3d.renderer.passes.ClearPass;
 import lw3d.renderer.passes.SceneRenderPass;
@@ -299,7 +300,7 @@ public class Controller extends Lw3dController {
 		ship.attach(shipGeometryNode);
 		ship.getMovement().getPosition().x = -0.0125f;
 				
-		GeometryNode map = new GeometryNode(GeometryManager.QUAD, ellipseMaterial);
+		GeometryNode map = new GeometryNode(Geometry.QUAD, ellipseMaterial);
 		ellipseMaterial.addUniform(new Uniform("focus", 0.7f, 0.3f));
 		ellipseMaterial.addUniform(new Uniform("major", 0.4f));
 		cameraNode.attach(map);
@@ -330,10 +331,13 @@ public class Controller extends Lw3dController {
 		cube.setMaterial(noiseMaterial);
 		
 		// Big planet
-		GeometryNode bigPlanet= new GeometryNode(sphereMesh, noiseMaterial);
-		bigPlanet.getTransform().setPosition(new Vector3f(0f, 0f, -800));
+		Planet bigPlanet= new Planet();//GeometryNode(sphereMesh, noiseMaterial);
+		PlanetLODManager.setCamera(cameraNode);
+		PlanetLODManager.addPlanet(bigPlanet);
+		PlanetLODManager.processPlanet(bigPlanet);
+	//	bigPlanet.getTransform().setPosition(new Vector3f(0f, 0f, -800));
 		bigPlanet.getTransform().getRotation().fromAngleNormalAxis((float)Math.PI/4, Vector3f.UNIT_X);
-		bigPlanet.getTransform().getScale().multThis(400f);
+		bigPlanet.getTransform().getScale().multThis(4/*400f*/);
 		rootNode.attach(bigPlanet);
 		
 		// Star map
@@ -349,6 +353,8 @@ public class Controller extends Lw3dController {
 		
 		// Create render passes
 		synchronized (model.getRenderPasses()) {
+			// Enable depth writing
+			model.getRenderPasses().add(new SetPass(SetPass.State.DEPTH_WRITE, true));
 			
 			// Clear the FBO
 			model.getRenderPasses().add(
@@ -368,6 +374,9 @@ public class Controller extends Lw3dController {
 			// Render the scene to the FBO
 			model.getRenderPasses().add(
 					new SceneRenderPass(rootNode, cameraNode, firstTarget));
+			
+			// Disable depth writing
+			model.getRenderPasses().add(new SetPass(SetPass.State.DEPTH_WRITE, false));
 			
 			// Apply Bloom to the FBO and put result on screen.
 			model.getRenderPasses().add(
