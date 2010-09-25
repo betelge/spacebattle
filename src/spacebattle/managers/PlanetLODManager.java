@@ -18,7 +18,6 @@ import lw3d.math.Vector3f;
 import lw3d.renderer.CameraNode;
 import lw3d.renderer.Geometry;
 import lw3d.renderer.GeometryNode;
-import lw3d.renderer.Material;
 import lw3d.renderer.Node;
 import lw3d.renderer.Geometry.Attribute;
 
@@ -59,9 +58,11 @@ public class PlanetLODManager {
 				}
 				indices.put((size+1)*i + size);
 				
-				// Degenerate triangles
-				indices.put((size+1)*i + size);
-				indices.put((size+1)*(i+1) + size+1);
+				if(i != size - 1) {
+					// Degenerate triangles
+					indices.put((size+1)*i + size);
+					indices.put((size+1)*(i+1) + size+1);
+				}
 			}
 			indices.flip();
 		}
@@ -122,7 +123,7 @@ public class PlanetLODManager {
 					
 					Geometry geometry = geometryGenerator(leaf[i]);
 					
-					leaf[i].attach(new GeometryNode( geometry, Material.DEFAULT ));
+					leaf[i].attach(new GeometryNode( geometry, currentPlanet.getMaterial() ));
 					
 					node.attach(leaf[i]);
 				}
@@ -157,7 +158,7 @@ public class PlanetLODManager {
 		
 		if(node.getChildren().isEmpty()) {
 			synchronized (node) {
-				node.attach(new GeometryNode(geometryGenerator(node), Material.DEFAULT));
+				node.attach(new GeometryNode(geometryGenerator(node), currentPlanet.getMaterial()));
 			}
 		}
 		
@@ -167,46 +168,72 @@ public class PlanetLODManager {
 	static private boolean isLeafCandidate(QuadTree node) {
 		// TODO: calculate
 		
-		return false;
+		return true;
 	}
 	
 	static private Geometry geometryGenerator(QuadTreeNode leaf) {
 		
-		Geometry.Attribute at = new Geometry.Attribute();
-		at.name = "position";
-		at.size = 3;
-		at.type = Geometry.Type.FLOAT;
-		at.buffer = BufferUtils.createFloatBuffer(3 * (size+1)*(size+1));
+		Geometry.Attribute atPosition = new Geometry.Attribute();
+		atPosition.name = "position";
+		atPosition.size = 3;
+		atPosition.type = Geometry.Type.FLOAT;
+		atPosition.buffer = BufferUtils.createFloatBuffer(3 * (size+1)*(size+1));
+		
+		Geometry.Attribute atNormal = new Geometry.Attribute();
+		atNormal.name = "normal";
+		atNormal.size = 3;
+		atNormal.type = Geometry.Type.FLOAT;
+		atNormal.buffer = BufferUtils.createFloatBuffer(3 * (size+1)*(size+1));
 				
 		Vector3f center = leaf.getCenter();
 		Vector3f basis[] = leaf.getBasis();
 		float length = leaf.getLength();
 		
 		Vector3f vertex = new Vector3f();
+		Vector3f normal = new Vector3f();
 		
 		for(int i = 0; i <= size; i++) {
 			for(int j = 0; j <= size; j++) {
 				vertex.set(center);
-				vertex.addMultThis(basis[0], 2*j/size -1);
-				vertex.addMultThis(basis[1], 2*i/size -1);
-				generateVertex(vertex, length/size);
+				vertex.addMultThis(basis[0], 2f*j/size -1);
+				vertex.addMultThis(basis[1], 2f*i/size -1);
 				
-				((FloatBuffer)at.buffer).put(vertex.x);
-				((FloatBuffer)at.buffer).put(vertex.y);
-				((FloatBuffer)at.buffer).put(vertex.z);
-				System.out.println("Putting vertex: " + vertex);
+				//generateVertex(vertex, length/size);
+				generateVertexNormal(vertex, normal, length/size);
+				
+				((FloatBuffer)atPosition.buffer).put(vertex.x);
+				((FloatBuffer)atPosition.buffer).put(vertex.y);
+				((FloatBuffer)atPosition.buffer).put(vertex.z);
+				
+				((FloatBuffer)atNormal.buffer).put(normal.x);
+				((FloatBuffer)atNormal.buffer).put(normal.y);
+				((FloatBuffer)atNormal.buffer).put(normal.z);
 			}
 		}
-		at.buffer.flip();
+		atPosition.buffer.flip();
+		atNormal.buffer.flip();
 		
 		List<Attribute> attributes = new ArrayList<Attribute>();
-		attributes.add(at);
+		attributes.add(atPosition);
+		attributes.add(atNormal);
+		attributes.add(atNormal);
 		
-		return new Geometry(Geometry.PrimitiveType.LINES, indices, attributes);
+		return new Geometry(Geometry.PrimitiveType.TRIANGLE_STRIP, indices, attributes);
 	}
 	
-	static private void generateVertex(Vector3f vertex, float resolution) {
+	static Vector3f _vector = new Vector3f();
+	
+	static private void generateVertexNormal(Vector3f vertex, Vector3f normal, float resolution) {
+		float gain = 0.4f;
+		
 		vertex.normalizeThis();
-		//vertex.multThis((float) currentPlanet.getTerrain().getValue(vertex.x, vertex.y, vertex.z, resolution) );
+		_vector.set(vertex);
+		//vertex.multThis(1f+0.1f*(float)currentPlanet.getTerrain().getValue(vertex.x, vertex.y, vertex.z, resolution) );
+		vertex.multThis(1f+gain*(float)currentPlanet.getTerrain()
+				.getValueNormal(vertex.x, vertex.y, vertex.z, resolution, normal) );
+		normal.normalizeThis();
+		normal.multThis(gain);
+		normal.addThis(_vector);
+		normal.normalizeThis();
 	}
 }

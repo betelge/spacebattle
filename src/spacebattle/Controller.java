@@ -18,6 +18,7 @@ import spacebattle.world.GalaxyGenerator;
 
 import lw3d.Lw3dController;
 import lw3d.Lw3dModel.RendererMode;
+import lw3d.math.Noise;
 import lw3d.math.Quaternion;
 import lw3d.math.Transform;
 import lw3d.math.Vector3f;
@@ -27,6 +28,7 @@ import lw3d.renderer.Geometry;
 import lw3d.renderer.GeometryNode;
 import lw3d.renderer.Light;
 import lw3d.renderer.Material;
+import lw3d.renderer.MovableNode;
 import lw3d.renderer.Node;
 import lw3d.renderer.RenderBuffer;
 import lw3d.renderer.ShaderProgram;
@@ -331,14 +333,21 @@ public class Controller extends Lw3dController {
 		cube.setMaterial(noiseMaterial);
 		
 		// Big planet
-		Planet bigPlanet= new Planet();//GeometryNode(sphereMesh, noiseMaterial);
+		Planet bigPlanet= new Planet();
+		bigPlanet.setMaterial(noiseMaterial);
 		PlanetLODManager.setCamera(cameraNode);
 		PlanetLODManager.addPlanet(bigPlanet);
 		PlanetLODManager.processPlanet(bigPlanet);
+	//	PlanetLODManager.processPlanet(bigPlanet);
+	//	PlanetLODManager.processPlanet(bigPlanet);
 	//	bigPlanet.getTransform().setPosition(new Vector3f(0f, 0f, -800));
 		bigPlanet.getTransform().getRotation().fromAngleNormalAxis((float)Math.PI/4, Vector3f.UNIT_X);
 		bigPlanet.getTransform().getScale().multThis(4/*400f*/);
-		rootNode.attach(bigPlanet);
+		MovableNode bigPlanetMover = new MovableNode();
+		bigPlanetMover.getMovement().getRotation().fromAngleNormalAxis(0.005f,
+				Vector3f.UNIT_Y);
+		bigPlanetMover.attach(bigPlanet);
+		rootNode.attach(bigPlanetMover);
 		
 		// Star map
 		Geometry galaxy = GalaxyGenerator.generateGalaxyPointGeometry(6425745746742674257l);

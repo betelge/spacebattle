@@ -1,12 +1,14 @@
 package spacebattle.planet;
 
-import lw3d.math.Noise;
+import spacebattle.procedurals.fBm;
 import lw3d.math.Procedural;
 import lw3d.math.Vector3f;
+import lw3d.renderer.Material;
 import lw3d.renderer.Node;
 
 public class Planet extends Node {
-	private Procedural terrain = new Noise(7436734673467l); // TODO: remove initialization
+	private Procedural terrain = new fBm(7436734673467l); // TODO: remove initialization
+	private Material material = Material.DEFAULT;
 	
 	public Planet() {
 		// Attach the 6 sides of the cube. 
@@ -32,6 +34,14 @@ public class Planet extends Node {
 
 	public Procedural getTerrain() {
 		return terrain;
+	}
+
+	public void setMaterial(Material material) {
+		this.material = material;
+	}
+
+	public Material getMaterial() {
+		return material;
 	}
 	
 }

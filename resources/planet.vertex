@@ -22,7 +22,7 @@ float my_noise3(vec3 tc);
 void main()
 {
 	modelPos = position;
-	pos = (modelViewMatrix * vec4(position + 0.1*my_noise3(position) * normal, 1.0)).xyz;
+	pos = (modelViewMatrix * vec4(position /*+ 0.1*my_noise3(position) * normal*/, 1.0)).xyz;
 	N = normalMatrix * normal;
 	gl_Position = perspectiveMatrix * vec4(pos, 1.0);
 	
