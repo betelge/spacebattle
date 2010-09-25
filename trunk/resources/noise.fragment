@@ -22,7 +22,7 @@ void main()
 	float Fz = my_noise3(abs(vec3(tc.x, tc.y, tc.z + e)));
 	vec3 gradient = vec3(Fx-F, Fy-F, Fz-F) / e;
 	vec3 normal = normalize(normalize(modelN)-0.1*gradient);*/
-	gl_FragColor = vec4(F * vec3(0.8, 0.8, 0.3) * clamp(dot(normalize(N), normalize(lightPos-pos)), 0.0, 1.0 ), 1.0); //vec4( vec3(dot(normal, normalize(lightPos-pos))), 1.0);
+	gl_FragColor = vec4(F * vec3(0.8, 0.8, 0.3) * (0.1+clamp(dot(normalize(N), normalize(lightPos-pos)), 0.0, 1.0 )), 1.0); //vec4( vec3(dot(normal, normalize(lightPos-pos))), 1.0);
 }
 
 float my_func(vec3 tc)
