@@ -163,12 +163,9 @@ public class Controller extends Lw3dController {
 		try {
 			shaders.add(new Shader(Shader.Type.VERTEX, StringLoader
 					.loadString("/default.vertex")));
-			if(model.getRendererMode() == RendererMode.SHADERS)
-				shaders.add(new Shader(Shader.Type.FRAGMENT, StringLoader
-						.loadString("/default.fragment")));
-			else
-				shaders.add(new Shader(Shader.Type.FRAGMENT, StringLoader
-						.loadString("/default_ff.fragment")));
+			shaders.add(new Shader(Shader.Type.FRAGMENT, StringLoader
+					.loadString("/default.fragment"), StringLoader
+					.loadString("/default_ff.fragment")));
 
 			fboShaders.add(new Shader(Shader.Type.VERTEX, StringLoader
 					.loadString("/direct.vertex")));
@@ -183,12 +180,14 @@ public class Controller extends Lw3dController {
 			ellipseShaders.add(new Shader(Shader.Type.VERTEX, StringLoader
 					.loadString("/default.vertex")));
 			ellipseShaders.add(new Shader(Shader.Type.FRAGMENT, StringLoader
-					.loadString("/ellipse.fragment")));
+					.loadString("/ellipse.fragment"), StringLoader
+					.loadString("/ellipse_ff.fragment")));
 			
 			galaxyShaders.add(new Shader(Shader.Type.VERTEX, StringLoader
 					.loadString("/galaxy.vertex")));
 			galaxyShaders.add(new Shader(Shader.Type.FRAGMENT, StringLoader
-					.loadString("/galaxy.fragment")));
+						.loadString("/galaxy.fragment"), StringLoader
+						.loadString("/galaxy_ff.fragment")));
 
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
@@ -320,7 +319,8 @@ public class Controller extends Lw3dController {
 			noiseShaders.add(new Shader(Shader.Type.VERTEX, StringLoader
 					.loadString("/planet.vertex")));
 			noiseShaders.add(new Shader(Shader.Type.FRAGMENT, StringLoader
-					.loadString("/noise.fragment")));
+					.loadString("/noise.fragment"), StringLoader
+					.loadString("/default_ff.fragment")));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
