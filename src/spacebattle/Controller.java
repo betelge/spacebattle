@@ -155,7 +155,7 @@ public class Controller extends Lw3dController {
 		Geometry sphereMesh = GeometryLoader.loadObj("/sphere.obj");
 
 		Set<Shader> shaders = new HashSet<Shader>();
-		Set<Shader> fboShaders = new HashSet<Shader>();
+		Set<Shader> directShaders = new HashSet<Shader>();
 		Set<Shader> lightShaders = new HashSet<Shader>();
 		Set<Shader> ellipseShaders = new HashSet<Shader>();
 		Set<Shader> galaxyShaders = new HashSet<Shader>();
@@ -167,9 +167,9 @@ public class Controller extends Lw3dController {
 					.loadString("/default.fragment"), StringLoader
 					.loadString("/default_ff.fragment")));
 
-			fboShaders.add(new Shader(Shader.Type.VERTEX, StringLoader
+			directShaders.add(new Shader(Shader.Type.VERTEX, StringLoader
 					.loadString("/direct.vertex")));
-			fboShaders.add(new Shader(Shader.Type.FRAGMENT, StringLoader
+			directShaders.add(new Shader(Shader.Type.FRAGMENT, StringLoader
 					.loadString("/direct.fragment")));
 			
 			lightShaders.add(new Shader(Shader.Type.VERTEX, StringLoader
@@ -195,12 +195,12 @@ public class Controller extends Lw3dController {
 		}
 
 		ShaderProgram shaderProgram = new ShaderProgram(shaders);
-		ShaderProgram fboShaderProgram = new ShaderProgram(fboShaders);
+		ShaderProgram directShaderProgram = new ShaderProgram(directShaders);
 		ShaderProgram lightProgram = new ShaderProgram(lightShaders);
 		ShaderProgram ellipseProgram = new ShaderProgram(ellipseShaders);
 		
 		Material defaultMaterial = new Material(shaderProgram);
-		Material fboMaterial = new Material(fboShaderProgram);
+		Material fboMaterial = new Material(directShaderProgram);
 		Material lightMaterial = new Material(lightProgram);
 		Material ellipseMaterial = new Material(ellipseProgram);
 
@@ -344,7 +344,7 @@ public class Controller extends Lw3dController {
 		bigPlanet.getTransform().getRotation().fromAngleNormalAxis((float)Math.PI/4, Vector3f.UNIT_X);
 		bigPlanet.getTransform().getScale().multThis(4/*400f*/);
 		MovableNode bigPlanetMover = new MovableNode();
-		bigPlanetMover.getMovement().getRotation().fromAngleNormalAxis(0.005f,
+		bigPlanetMover.getMovement().getRotation().fromAngleNormalAxis(0.002f,
 				Vector3f.UNIT_Y);
 		bigPlanetMover.attach(bigPlanet);
 		rootNode.attach(bigPlanetMover);
@@ -356,6 +356,18 @@ public class Controller extends Lw3dController {
 		GeometryNode galaxyNode = new GeometryNode(galaxy, galaxyMaterial);
 		galaxyNode.getTransform().setPosition(cameraNode.getTransform().getPosition());
 		galaxyNode.getTransform().getScale().multThis(1000);
+		
+		// Logo quad
+		/*ShaderProgram ambientProgram = new ShaderProgram(Shader.DEFAULT_VERTEX,
+				new Shader(Shader.Type.FRAGMENT, StringLoader.loadStringExceptionless("/ambient.fragment")));
+		Material logoMaterial = new Material(ambientProgram);
+		logoMaterial.addTexture("source", TextureLoader.loadTextureExceptionless("/lw3d.png"));
+		GeometryNode logo = new GeometryNode(Geometry.QUAD, logoMaterial);
+		logo.getTransform().getPosition().x += 30;
+		logo.getTransform().getPosition().z -= 10;
+		//logo.getTransform().getRotation().fromAngleNormalAxis((float) Math.PI, Vector3f.UNIT_Y);
+		logo.getTransform().getScale().multThis(15);
+		rootNode.attach(logo);*/
 		
 		// FBO for renderpasses (bloom)
 		FBO firstTarget = myFBO;
