@@ -49,7 +49,7 @@ public class PlanetLODManager {
 		currentPlanet = planet;
 		
 		if(indices == null) {
-			indices = BufferUtils.createIntBuffer(2*size*size+4*size);
+			indices = BufferUtils.createIntBuffer((2*size+2)*size+(size-1)*2);
 			for(int i = 0; i < size; i++) {
 				indices.put((size+1)*i + size+1);			
 				for(int j = 0; j < size; j++) {
@@ -80,9 +80,9 @@ public class PlanetLODManager {
 	
 	static private void processQuadTree(QuadTreeNode node) {
 	
-		boolean leafCandidate = isLeafCandidate(node);
+		boolean splitCandidate = isSplitCandidate(node);
 		
-		if( !leafCandidate && !node.isLeaf() ) {
+		if( splitCandidate && !node.isLeaf() ) {
 			
 			synchronized (node) {
 				// TODO: Crazy type-casting
@@ -92,7 +92,7 @@ public class PlanetLODManager {
 				}
 			}
 		}
-		else if( leafCandidate && !node.isLeaf() ) {
+		else if( splitCandidate && node.isLeaf() ) {
 			
 			// We need to increase detail.
 			synchronized (node) {
@@ -108,10 +108,10 @@ public class PlanetLODManager {
 				Vector3f center = node.getCenter();
 				Vector3f basis[] = node.getBasis();
 				
-				offsets[0] = center.add(basis[0].x + basis[1].x, basis[0].y + basis[1].y, basis[0].z + basis[1].z);
-				offsets[1] = center.add(basis[0].x - basis[1].x, basis[0].y - basis[1].y, basis[0].z - basis[1].z);
-				offsets[2] = center.add(-basis[0].x + basis[1].x, -basis[0].y + basis[1].y, -basis[0].z + basis[1].z);
-				offsets[3] = center.add(-basis[0].x - basis[1].x, -basis[0].y - basis[1].y, -basis[0].z - basis[1].z);					
+				offsets[0] = center.addMult(basis[0].x + basis[1].x, basis[0].y + basis[1].y, basis[0].z + basis[1].z, 0.5f);
+				offsets[1] = center.addMult(basis[0].x - basis[1].x, basis[0].y - basis[1].y, basis[0].z - basis[1].z, 0.5f);
+				offsets[2] = center.addMult(-basis[0].x + basis[1].x, -basis[0].y + basis[1].y, -basis[0].z + basis[1].z, 0.5f);
+				offsets[3] = center.addMult(-basis[0].x - basis[1].x, -basis[0].y - basis[1].y, -basis[0].z - basis[1].z, 0.5f);					
 				
 				
 				leaf[0] = new QuadTreeNode(offsets[0], l/2, true);
@@ -137,7 +137,7 @@ public class PlanetLODManager {
 				((Node)node).detachFromParent();
 			}*/
 			
-		} else if( !leafCandidate && node.isLeaf() ){
+		} else if( !splitCandidate && !node.isLeaf() ){
 			
 			// We need to decrease detail.
 			//QuadTreeLeafNode leaf = new QuadTreeLeafNode(null, null);
@@ -153,10 +153,10 @@ public class PlanetLODManager {
 			
 		}
 		
-		// Node is and should be a leaf.
+		// Node is and should be a leaf. ( !splitCandidate && node.isLeaf() )
 		// Make sure it has a geometry.
 		
-		if(node.getChildren().isEmpty()) {
+		else if(node.getChildren().isEmpty()) {
 			synchronized (node) {
 				node.attach(new GeometryNode(geometryGenerator(node), currentPlanet.getMaterial()));
 			}
@@ -165,7 +165,7 @@ public class PlanetLODManager {
 		return;
 	}
 
-	static private boolean isLeafCandidate(QuadTree node) {
+	static private boolean isSplitCandidate(QuadTree node) {
 		// TODO: calculate
 		
 		return true;
@@ -222,17 +222,22 @@ public class PlanetLODManager {
 	}
 	
 	static Vector3f _vector = new Vector3f();
+	static Vector3f __vector = new Vector3f();
 	
 	static private void generateVertexNormal(Vector3f vertex, Vector3f normal, float resolution) {
-		float gain = 0.4f;
+		float gain = 0.1f;
+		
+		// TODO: there is a small bug in here somewhere. Th enormals are slightly wrong.
 		
 		vertex.normalizeThis();
 		_vector.set(vertex);
 		//vertex.multThis(1f+0.1f*(float)currentPlanet.getTerrain().getValue(vertex.x, vertex.y, vertex.z, resolution) );
-		vertex.multThis(1f+gain*(float)currentPlanet.getTerrain()
-				.getValueNormal(vertex.x, vertex.y, vertex.z, resolution, normal) );
-		normal.normalizeThis();
-		normal.multThis(gain);
+		float v = gain*(float)currentPlanet.getTerrain()
+				.getValueNormal(2*vertex.x, 2*vertex.y, 2*vertex.z, 2*resolution, normal);
+		vertex.multThis(1f + v);
+		normal.multThis(-gain);
+		__vector.set(normal.x*_vector.x, normal.y*_vector.y, normal.z*_vector.z);
+		normal.subThis(__vector); // _vector is now perpendicualr to vertex
 		normal.addThis(_vector);
 		normal.normalizeThis();
 	}

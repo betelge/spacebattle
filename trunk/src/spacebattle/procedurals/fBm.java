@@ -6,7 +6,7 @@ import lw3d.math.Vector3f;
 
 public class fBm implements Procedural {
 	Noise noise;
-	int maxOctaves = 80;
+	int maxOctaves = 32;
 	
 	public fBm(long seed) {
 		noise = new Noise(seed);
@@ -31,7 +31,7 @@ public class fBm implements Procedural {
 		
 		for(int i = 1; i < 1f/resolution; i *= 2) {
 			value += 1f/i * noise.getValueNormal(i*x, i*y, i*z, resolution, normalAcc);
-			normal.addThis(normalAcc);
+			normal.addMultThis(normalAcc, 1f/i);
 		}
 		
 		return value;

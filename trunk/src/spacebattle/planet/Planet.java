@@ -1,8 +1,12 @@
 package spacebattle.planet;
 
+import java.util.Iterator;
+
 import spacebattle.procedurals.fBm;
+import lw3d.math.Noise;
 import lw3d.math.Procedural;
 import lw3d.math.Vector3f;
+import lw3d.renderer.GeometryNode;
 import lw3d.renderer.Material;
 import lw3d.renderer.Node;
 
@@ -38,6 +42,13 @@ public class Planet extends Node {
 
 	public void setMaterial(Material material) {
 		this.material = material;
+		
+		Iterator<Node> it = getChildren().iterator();
+		while(it.hasNext()) {
+			Node node = it.next();
+			if(node instanceof QuadTreeNode)
+				((QuadTreeNode) node).setMaterial(material);
+		}
 	}
 
 	public Material getMaterial() {

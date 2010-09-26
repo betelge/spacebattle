@@ -1,6 +1,10 @@
 package spacebattle.planet;
 
+import java.util.Iterator;
+
 import lw3d.math.Vector3f;
+import lw3d.renderer.GeometryNode;
+import lw3d.renderer.Material;
 import lw3d.renderer.Node;
 
 public class QuadTreeNode extends Node implements QuadTree {
@@ -48,6 +52,17 @@ public class QuadTreeNode extends Node implements QuadTree {
 		}
 	}
 
+	public void setMaterial(Material material) {
+		Iterator<Node> it = getChildren().iterator();
+		while(it.hasNext()) {
+			Node node = it.next();
+			if(node instanceof GeometryNode)
+				((GeometryNode) node).setMaterial(material);
+			else if(node instanceof QuadTreeNode)
+				((QuadTreeNode) node).setMaterial(material);
+		}
+	}
+	
 	public boolean isLeaf() {
 		return leaf;
 	}
