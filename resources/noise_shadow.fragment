@@ -1,0 +1,47 @@
+#version 120
+
+uniform sampler2D shadow;
+uniform sampler3D noiseTexture;
+uniform mat4 shadowMatrix;
+uniform vec3 lightPos;
+
+uniform mat4 modelViewMatrix;
+
+varying vec3 pos;
+varying vec3 modelPos;
+varying vec3 N;
+
+const float pi = 3.14159;
+
+float my_func(vec3 tc);
+float my_noise3(vec3 tc);
+
+const vec3 bitShifts = vec3(1.0/(256.0*256.0), 1.0/256.0, 1.0);
+const float bias = 0.0;
+
+void main()
+{
+	vec3 tc = modelPos;
+	
+	vec3 lightToVertex = pos - lightPos;
+	vec4 lightProj = shadowMatrix * vec4((modelPos/*+vec3(0.5)*/), 1.0);
+	vec4 shade = texture2D(shadow, vec2(0.5)+0.5*lightProj.xy/lightProj.w);
+	float unlit = float((length(lightToVertex)-bias)/100.0 <= dot(shade.rgb, bitShifts) + bias);
+	
+	float F = clamp(my_func(modelPos), 0.0, 1.0);
+	
+	gl_FragColor = vec4(/*F */ /*0.95*(1-unlit)*shade.rgb*/ + (0.05+0.95*unlit)*vec3(0.8, 0.8, 0.3) * clamp(dot(normalize(N), normalize(lightPos-pos)), 0.0, 1.0 ), 1.0); //vec4( vec3(dot(normal, normalize(lightPos-pos))), 1.0);
+}
+
+float my_func(vec3 tc)
+{
+	return sin(4.1*tc.x*tc.z*tc.y + 4.0*tc.y*tc.y + abs(my_noise3(tc)) + 0.5 * abs(my_noise3(2.0*tc))
+		+ 0.25 * abs(my_noise3(4.0*tc)) + 0.125 * abs(my_noise3(8.0*tc)));
+}
+
+float my_noise3(vec3 tc)
+{
+	vec2 hi = 2.0 * texture3D(noiseTexture, tc).ra - 1.0;
+	float rot = 2.0 * pi * (2.0 * texture3D(noiseTexture, 1.0/32.0 * tc).x - 1.0);
+	return hi.x * cos(rot) + hi.y * sin(rot);
+} 

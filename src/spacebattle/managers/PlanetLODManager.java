@@ -225,9 +225,9 @@ public class PlanetLODManager {
 	static Vector3f __vector = new Vector3f();
 	
 	static private void generateVertexNormal(Vector3f vertex, Vector3f normal, float resolution) {
-		float gain = 0.1f;
+		float gain = 0.3f;
 		
-		// TODO: there is a small bug in here somewhere. Th enormals are slightly wrong.
+		// TODO: there is a small bug in here somewhere. The normals are slightly wrong.
 		
 		vertex.normalizeThis();
 		_vector.set(vertex);
@@ -237,7 +237,7 @@ public class PlanetLODManager {
 		vertex.multThis(1f + v);
 		normal.multThis(-gain);
 		__vector.set(normal.x*_vector.x, normal.y*_vector.y, normal.z*_vector.z);
-		normal.subThis(__vector); // _vector is now perpendicualr to vertex
+		normal.subThis(__vector); // normal is now perpendicualr to vertex
 		normal.addThis(_vector);
 		normal.normalizeThis();
 	}
