@@ -1,0 +1,17 @@
+#version 120
+
+varying vec3 pos;
+
+void main()
+{
+	const vec3 bitSh = vec3(	256*256,	256,			1);
+    const vec3 bitMsk = vec3(	0,		1.0/256.0, 	1.0/256.0);
+    
+    float dist = length(pos)/100.0;
+    vec3 comp = dist*bitSh;
+    
+    comp=fract(comp);
+    comp-=comp.xxy*bitMsk;
+
+	gl_FragColor = vec4(comp, 1.0);
+}

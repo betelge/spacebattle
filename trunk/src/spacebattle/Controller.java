@@ -18,12 +18,14 @@ import spacebattle.world.GalaxyGenerator;
 
 import lw3d.Lw3dController;
 import lw3d.Lw3dModel.RendererMode;
+import lw3d.math.Matrix4;
 import lw3d.math.Noise;
 import lw3d.math.Quaternion;
 import lw3d.math.Transform;
 import lw3d.math.Vector3f;
 import lw3d.renderer.CameraNode;
 import lw3d.renderer.FBO;
+import lw3d.renderer.FBOAttachable;
 import lw3d.renderer.Geometry;
 import lw3d.renderer.GeometryNode;
 import lw3d.renderer.Light;
@@ -31,6 +33,7 @@ import lw3d.renderer.Material;
 import lw3d.renderer.MovableNode;
 import lw3d.renderer.Node;
 import lw3d.renderer.RenderBuffer;
+import lw3d.renderer.Renderer;
 import lw3d.renderer.ShaderProgram;
 import lw3d.renderer.Texture;
 import lw3d.renderer.Uniform;
@@ -247,7 +250,8 @@ public class Controller extends Lw3dController {
 		defaultMaterial.addTexture("texture0", texture);
 		fboMaterial.addTexture("source", fboTexture);
 		model.getSimulatedNodes().add(rootNode);
-		CameraNode cameraNode = new CameraNode();
+		CameraNode cameraNode = new CameraNode(45f, (float) model.getDrawWidth() / model.getDrawHeight(),
+				0.01f, 1000f);
 		cameraNode.getTransform().getPosition().set(0f, 30f, -15f);
 		cameraNode.getTransform().getRotation().fromAngleNormalAxis((float) -Math.PI/2.3f, Vector3f.UNIT_X);
 		model.setCameraNode(cameraNode);
@@ -332,9 +336,23 @@ public class Controller extends Lw3dController {
 		//shipGeometryNode.setMaterial(noiseMaterial);
 		cube.setMaterial(noiseMaterial);
 		
+		// Shadow map
+		int shadowSize = 512;
+		RenderBuffer depthRenderBuffer = new RenderBuffer(Format.GL_DEPTH_COMPONENT24, shadowSize, shadowSize);
+		Texture depthTexture = new Texture(null, TextureType.TEXTURE_2D, shadowSize, shadowSize,
+				TexelType.UBYTE, Format.GL_RGB8, Filter.NEAREST, WrapMode.CLAMP_TO_BORDER);
+		depthTexture.setMipmapLevel(1f);
+		FBO shadowmapFBO = new FBO(depthTexture, depthRenderBuffer, shadowSize, shadowSize);
+		CameraNode lightCam = new CameraNode(45f, 1f, 1f, 100f);
+		
 		// Big planet
 		Planet bigPlanet= new Planet();
-		bigPlanet.setMaterial(noiseMaterial);
+		Material noiseShadowMaterial = new Material(
+				new ShaderProgram(Shader.DEFAULT_VERTEX, new Shader(Shader.Type.FRAGMENT,
+						StringLoader.loadStringExceptionless("/noise.fragment"))));
+		noiseShadowMaterial.addTexture("noise", noiseTexture);
+		noiseShadowMaterial.addTexture("shadow", depthTexture);
+		bigPlanet.setMaterial(noiseShadowMaterial);
 		PlanetLODManager.setCamera(cameraNode);
 		PlanetLODManager.addPlanet(bigPlanet);
 		PlanetLODManager.processPlanet(bigPlanet);
@@ -357,25 +375,81 @@ public class Controller extends Lw3dController {
 		galaxyNode.getTransform().setPosition(cameraNode.getTransform().getPosition());
 		galaxyNode.getTransform().getScale().multThis(1000);
 		
+		// FBO for renderpasses (bloom)
+		FBO firstTarget = myFBO;
+		
+		lightNode.attach(lightCam);
+		Material depthMaterial = new Material(
+				new ShaderProgram(new Shader(Shader.Type.VERTEX,
+						StringLoader.loadStringExceptionless("/perspective_shadow_map.vertex"))
+						, new Shader(Shader.Type.FRAGMENT,
+						StringLoader.loadStringExceptionless("/depth_to_rgb.fragment"))));
+		model.lightMapCam = lightCam;
+		model.lightMapObject = bigPlanet;
+		model.lightUniform = new Uniform("shadowMatrix", false, new float[16]);
+		noiseShadowMaterial.addUniform(model.lightUniform);
+		model.extraPerspectiveUniform = new Uniform("extraPerspectiveMatrix", false, new float[16]);
+		depthMaterial.addUniform(model.extraPerspectiveUniform);
+		
 		// Logo quad
-		/*ShaderProgram ambientProgram = new ShaderProgram(Shader.DEFAULT_VERTEX,
+		ShaderProgram ambientProgram = new ShaderProgram(Shader.DEFAULT_VERTEX,
 				new Shader(Shader.Type.FRAGMENT, StringLoader.loadStringExceptionless("/ambient.fragment")));
 		Material logoMaterial = new Material(ambientProgram);
-		logoMaterial.addTexture("source", TextureLoader.loadTextureExceptionless("/lw3d.png"));
+		logoMaterial.addTexture("source", depthTexture/*TextureLoader.loadTextureExceptionless("/lw3d.png")*/);
 		GeometryNode logo = new GeometryNode(Geometry.QUAD, logoMaterial);
 		logo.getTransform().getPosition().x += 30;
 		logo.getTransform().getPosition().z -= 10;
 		//logo.getTransform().getRotation().fromAngleNormalAxis((float) Math.PI, Vector3f.UNIT_Y);
 		logo.getTransform().getScale().multThis(15);
-		rootNode.attach(logo);*/
+		rootNode.attach(logo);
 		
-		// FBO for renderpasses (bloom)
-		FBO firstTarget = myFBO;
+		Runnable beforeFrameRunnable = new Runnable() {
+			
+			@Override
+			public void run() {
+				// Orient the camera for the shadow map
+				model.lightMapCam.getTransform().getRotation().lookAt(
+						model.lightMapObject.getAbsoluteTransform().getPosition().sub(
+								model.lightMapCam.getAbsoluteTransform().getPosition()), Vector3f.UNIT_Y);
+				
+				Transform lightToObject =  model.lightMapCam.getAbsoluteTransform().getCameraTransform()
+					.mult(model.lightMapObject.getAbsoluteTransform());
+				
+				Matrix4 lightMatrix =
+					new Matrix4(lightToObject.toMatrix4());
+				
+				float[] lightPerspectiveFloats = Renderer.getPerspectiveMatrix(model.lightMapCam.getAspect(),
+						model.lightMapCam.getFov(), model.lightMapCam.getzNear(), model.lightMapCam.getzFar());
+				
+				Matrix4 lightPerspectiveMatrix = new Matrix4(lightPerspectiveFloats);
+				
+				model.lightUniform.set(false, lightMatrix.mult(lightPerspectiveMatrix).getFloats());
+				
+				float[] f = model.getCameraNode().getAbsoluteTransform().getCameraTransform().toMatrix4();
+				
+				//System.out.println("f:");
+				for(int i = 0; i < f.length; i++)
+				//	System.out.println(f[i]);
+				
+				model.extraPerspectiveUniform.set(false, f);
+			}
+		};
+		
+		view.setBeforeFrameRunnable(beforeFrameRunnable);
 		
 		// Create render passes
 		synchronized (model.getRenderPasses()) {
 			// Enable depth writing
 			model.getRenderPasses().add(new SetPass(SetPass.State.DEPTH_WRITE, true));
+			
+			// Clear the shadow map FBO
+			model.getRenderPasses().add(
+					new ClearPass(ClearPass.COLOR_BUFFER_BIT | ClearPass.DEPTH_BUFFER_BIT,
+							shadowmapFBO));
+			
+			// Shadow map
+			model.getRenderPasses().add(
+					new SceneRenderPass(rootNode, lightCam, shadowmapFBO, depthMaterial));
 			
 			// Clear the FBO
 			model.getRenderPasses().add(
