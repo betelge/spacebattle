@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/../lw3d/lw3d.iml" filepath="$PROJECT_DIR$/../lw3d/lw3d.iml" />
+      <module fileurl="file://$PROJECT_DIR$/spacebattle.iml" filepath="$PROJECT_DIR$/spacebattle.iml" />
+    </modules>
+  </component>
+</project>

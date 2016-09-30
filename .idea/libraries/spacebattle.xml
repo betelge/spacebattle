@@ -1,0 +1,17 @@
+<component name="libraryTable">
+  <library name="spacebattle">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lwjgl-source-2.5.zip!/" />
+      <root url="jar://$PROJECT_DIR$/AppleJavaExtensions.jar!/" />
+      <root url="jar://$PROJECT_DIR$/jinput.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lzma.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lwjgl.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lwjgl_test.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lwjgl_util.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lwjgl-debug.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lwjgl_util_applet.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/resources" type="java-resource" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" exported="" name="spacebattle" level="project" />
+    <orderEntry type="module" module-name="lw3d" exported="" />
+    <orderEntry type="module-library" exported="">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/AppleJavaExtensions.jar!/" />
+          <root url="jar://$MODULE_DIR$/jinput.jar!/" />
+          <root url="jar://$MODULE_DIR$/lwjgl-debug.jar!/" />
+          <root url="jar://$MODULE_DIR$/lwjgl.jar!/" />
+          <root url="jar://$MODULE_DIR$/lwjgl_test.jar!/" />
+          <root url="jar://$MODULE_DIR$/lwjgl_util.jar!/" />
+          <root url="jar://$MODULE_DIR$/lwjgl_util_applet.jar!/" />
+          <root url="jar://$MODULE_DIR$/lzma.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/lwjgl-source-2.5.zip!/src/generated" />
+          <root url="jar://$MODULE_DIR$/lwjgl-source-2.5.zip!/src/java" />
+          <root url="jar://$MODULE_DIR$/lwjgl-source-2.5.zip!/src/templates" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+  </component>
+</module>
